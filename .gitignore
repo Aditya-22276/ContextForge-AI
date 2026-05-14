@@ -1,0 +1,15 @@
+# ENV FILES
+.env
+*.env
+
+# PYTHON
+backend/venv/
+__pycache__/
+*.pyc
+
+# NODE
+frontend/node_modules/
+
+# BUILD FILES
+build/
+dist/
