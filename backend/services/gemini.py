@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 
-from google import genai
+import google.generativeai as genai
 
 
 load_dotenv()
@@ -25,9 +25,7 @@ if not GEMINI_API_KEY:
 # -----------------------------
 # GEMINI CLIENT
 # -----------------------------
-client = genai.Client(
-    api_key=GEMINI_API_KEY
-)
+genai.configure(api_key=GEMINI_API_KEY)
 
 
 # -----------------------------
