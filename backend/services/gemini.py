@@ -1,19 +1,16 @@
 import os
 
 from dotenv import load_dotenv
+from google import genai
+from google.genai import types
 
-import google.generativeai as genai
-
+# -----------------------------
+# LOAD ENV
+# -----------------------------
 
 load_dotenv()
 
-
-# -----------------------------
-# ENV VARIABLES
-# -----------------------------
-GEMINI_API_KEY = os.getenv(
-    "GEMINI_API_KEY"
-)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 if not GEMINI_API_KEY:
 
@@ -21,42 +18,25 @@ if not GEMINI_API_KEY:
         "GEMINI_API_KEY not found in .env file"
     )
 
-
 # -----------------------------
 # GEMINI CLIENT
 # -----------------------------
-genai.configure(api_key=GEMINI_API_KEY)
 
+client = genai.Client(
+    api_key=GEMINI_API_KEY
+)
 
 # -----------------------------
 # SAFE RESPONSE EXTRACTOR
 # -----------------------------
+
 def extract_response_text(response):
 
     try:
 
-        # PRIMARY
-        if (
-            hasattr(response, "text")
-            and response.text
-        ):
+        if hasattr(response, "text") and response.text:
 
             return response.text.strip()
-
-        # FALLBACK
-        if (
-            hasattr(response, "candidates")
-            and response.candidates
-        ):
-
-            parts = (
-                response.candidates[0]
-                .content.parts
-            )
-
-            if parts:
-
-                return parts[0].text.strip()
 
         return "No response generated."
 
@@ -69,10 +49,10 @@ def extract_response_text(response):
 
         return "Error parsing AI response."
 
-
 # -----------------------------
 # SUMMARIZER
 # -----------------------------
+
 def summarize_text(text: str) -> str:
 
     prompt = f"""
@@ -99,12 +79,12 @@ SUMMARY:
 
             contents=prompt,
 
-           config=genai.types.GenerateContentConfig(
-          temperature=0.3,
-          top_p=0.9,
-          top_k=40,
-          max_output_tokens=400,
-)
+            config=types.GenerateContentConfig(
+                temperature=0.3,
+                top_p=0.9,
+                top_k=40,
+                max_output_tokens=400,
+            )
         )
 
         return extract_response_text(
@@ -120,10 +100,10 @@ SUMMARY:
 
         return "Error generating summary."
 
-
 # -----------------------------
 # NORMAL CHAT RESPONSE
 # -----------------------------
+
 def generate_response(prompt: str) -> str:
 
     system_prompt = f"""
@@ -146,16 +126,16 @@ ANSWER:
 
         response = client.models.generate_content(
 
-           model="gemini-2.5-flash",
+            model="gemini-2.5-flash",
 
             contents=system_prompt,
 
-            config=genai.types.GenerateContentConfig(
-            temperature=0.4,
-            top_p=0.95,
-            top_k=50,
-            max_output_tokens=700,
-)
+            config=types.GenerateContentConfig(
+                temperature=0.4,
+                top_p=0.95,
+                top_k=50,
+                max_output_tokens=700,
+            )
         )
 
         return extract_response_text(
@@ -171,10 +151,10 @@ ANSWER:
 
         return "Error generating AI response."
 
+# -----------------------------
+# CHAT TITLE GENERATOR
+# -----------------------------
 
-# -----------------------------
-# AI CHAT TITLE GENERATOR
-# -----------------------------
 def generate_chat_title(query: str) -> str:
 
     prompt = f"""
@@ -201,12 +181,12 @@ TITLE:
 
             contents=prompt,
 
-            config=genai.types.GenerateContentConfig(
-            temperature=0.4,
-            top_p=0.95,
-            top_k=50,
-            max_output_tokens=700,
-)
+            config=types.GenerateContentConfig(
+                temperature=0.4,
+                top_p=0.95,
+                top_k=50,
+                max_output_tokens=30,
+            )
         )
 
         title = extract_response_text(
@@ -219,6 +199,7 @@ TITLE:
             cleaned_title == "No response generated."
             or cleaned_title == ""
         ):
+
             return query[:40]
 
         return cleaned_title
