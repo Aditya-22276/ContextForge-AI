@@ -21,7 +21,7 @@ function App() {
 
   const [dragActive, setDragActive] = useState(false);
 
-  const [documents, setDocuments] = useState([]);
+const [, setDocuments] = useState([]);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
