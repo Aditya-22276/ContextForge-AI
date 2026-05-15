@@ -7,3 +7,6 @@ google-genai
 sentence-transformers
 pgvector
 python-multipart
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt
