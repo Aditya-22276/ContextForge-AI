@@ -4,6 +4,7 @@ sqlalchemy
 psycopg2-binary
 python-dotenv
 google-genai
+google-auth        
 sentence-transformers
 pgvector
 python-multipart

@@ -3,6 +3,9 @@ import "./App.css";
 import ReactMarkdown from "react-markdown";
 import { GoogleLogin } from "@react-oauth/google";
 
+// All API calls go through this — set REACT_APP_API_URL in Vercel environment variables
+const API_BASE = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+
 function App() {
 
   const [query, setQuery] = useState("");
@@ -106,7 +109,7 @@ const [documents, setDocuments] = useState([]);
     try {
 
       const res = await fetch(
-        "http://127.0.0.1:8000/api/documents",
+        `${API_BASE}/api/documents`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -155,7 +158,7 @@ const [documents, setDocuments] = useState([]);
       if (!token) return;
 
       const res = await fetch(
-        "http://127.0.0.1:8000/api/history",
+        `${API_BASE}/api/history`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -196,7 +199,7 @@ const fetchSessions = async () => {
 
     const res = await fetch(
 
-      "http://127.0.0.1:8000/api/sessions",
+      `${API_BASE}/api/sessions`,
 
       {
         headers: {
@@ -238,7 +241,7 @@ const loadSessionChats = async (sessionId) => {
     const token = localStorage.getItem("token");
 
     const res = await fetch(
-      `http://127.0.0.1:8000/api/history/${sessionId}`,
+      `${API_BASE}/api/history/${sessionId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`
@@ -285,7 +288,7 @@ const loadSessionChats = async (sessionId) => {
     try {
 
       await fetch(
-        `http://127.0.0.1:8000/api/documents/${filename}`,
+        `${API_BASE}/api/documents/${filename}`,
         {
           method: "DELETE",
           headers: {
@@ -310,7 +313,7 @@ const loadSessionChats = async (sessionId) => {
     try {
 
       const res = await fetch(
-        "http://127.0.0.1:8000/api/login",
+        `${API_BASE}/api/login`,
         {
           method: "POST",
           headers: {
@@ -366,7 +369,7 @@ const loadSessionChats = async (sessionId) => {
     try {
 
       const res = await fetch(
-        "http://127.0.0.1:8000/api/register",
+        `${API_BASE}/api/register`,
         {
           method: "POST",
           headers: {
@@ -411,10 +414,18 @@ const loadSessionChats = async (sessionId) => {
   // GOOGLE LOGIN
   const handleGoogleLogin = async (credentialResponse) => {
 
+    const idToken = credentialResponse?.credential;
+
+    if (!idToken) {
+      alert("Google login failed: no credential received. Try again.");
+      console.error("credentialResponse had no .credential:", credentialResponse);
+      return;
+    }
+
     try {
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/google-login",
+        `${API_BASE}/api/google-login`,
         {
           method: "POST",
 
@@ -423,14 +434,19 @@ const loadSessionChats = async (sessionId) => {
           },
 
           body: JSON.stringify({
-            token: credentialResponse.credential,
+            token: idToken,
           }),
         }
       );
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error(`Backend returned non-JSON (status ${response.status})`);
+      }
 
-      if (response.ok) {
+      if (response.ok && data.access_token) {
 
         localStorage.setItem("token", data.access_token);
 
@@ -442,7 +458,9 @@ const loadSessionChats = async (sessionId) => {
 
       } else {
 
-        alert(data.detail || "Google login failed");
+        const errorMsg = data?.detail || `HTTP ${response.status}`;
+        console.error("Google login backend error:", errorMsg);
+        alert(`Google login failed: ${errorMsg}`);
 
       }
 
@@ -450,7 +468,7 @@ const loadSessionChats = async (sessionId) => {
 
       console.error(err);
 
-      alert("Google login error");
+      alert(`Google login error: ${err.message}`);
 
     }
 
@@ -503,7 +521,7 @@ const loadSessionChats = async (sessionId) => {
         );
 
         const res = await fetch(
-          "http://127.0.0.1:8000/api/upload-file",
+          `${API_BASE}/api/upload-file`,
           {
             method: "POST",
             headers: {
@@ -559,7 +577,7 @@ const loadSessionChats = async (sessionId) => {
       );
 
       const res = await fetch(
-        "http://127.0.0.1:8000/api/upload",
+        `${API_BASE}/api/upload`,
         {
           method: "POST",
           headers: {
@@ -680,7 +698,7 @@ const loadSessionChats = async (sessionId) => {
 
       // API CALL
       const res = await fetch(
-        "http://127.0.0.1:8000/api/chat",
+        `${API_BASE}/api/chat`,
         {
           method: "POST",
 
@@ -1022,7 +1040,7 @@ setLoading(false);
           localStorage.getItem("token");
 
         await fetch(
-          `http://127.0.0.1:8000/api/sessions/${session.id}`,
+          `${API_BASE}/api/sessions/${session.id}`,
           {
             method: "DELETE",
             headers: {
