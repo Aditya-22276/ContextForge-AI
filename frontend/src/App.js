@@ -21,7 +21,7 @@ function App() {
 
   const [dragActive, setDragActive] = useState(false);
 
-const [, setDocuments] = useState([]);
+const [documents, setDocuments] = useState([]);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -75,7 +75,7 @@ const [, setDocuments] = useState([]);
         fetchSessions();
       }, 100);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // CHECK TOKEN
   useEffect(() => {
@@ -94,7 +94,7 @@ const [, setDocuments] = useState([]);
 
     }, 100);
 
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // FETCH DOCUMENTS
   const fetchDocuments = async () => {
@@ -969,6 +969,19 @@ setLoading(false);
           </button>
 
         </div>
+
+        {/* DOCUMENTS */}
+        {documents.length > 0 && (
+          <div className="documents-section">
+            <h2 className="history-title">Documents</h2>
+            {documents.map((doc) => (
+              <div key={doc.filename} className="session-item">
+                <div>📄 {doc.filename}</div>
+                <button onClick={() => deleteDocument(doc.filename)}>✕</button>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* HISTORY */}
         <div className="documents-section">
