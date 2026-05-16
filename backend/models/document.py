@@ -33,19 +33,19 @@ class Document(Base):
         nullable=True
     )
 
-    # ✅ NEW: FILENAME
+    # New filename
     filename = Column(
         Text,
         nullable=True
     )
 
-    # USER RELATION
+    # User relation
     user_id = Column(
         Integer,
         ForeignKey("users.id")
     )
 
-    # CREATED TIME
+    # Created time
     created_at = Column(
         TIMESTAMP,
         server_default=func.now()

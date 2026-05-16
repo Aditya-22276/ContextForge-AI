@@ -12,11 +12,9 @@ from sqlalchemy import or_
 
 import numpy as np
 
+# Retrive relevant documents
+# Hybrid search
 
-# -----------------------------------
-# RETRIEVE RELEVANT DOCUMENTS
-# HYBRID SEARCH
-# -----------------------------------
 def retrieve_relevant_docs(
     query,
     db,
@@ -24,27 +22,25 @@ def retrieve_relevant_docs(
     top_k=5
 ):
 
-    # GENERATE QUERY EMBEDDING
+    # Geneartes hybrid embeddings
     query_embedding = generate_embedding(query)
 
-    # GET USER DOCUMENTS
+    # Get user documents
     docs = db.query(Document).filter(
         Document.user_id == user_id
     ).all()
 
     scored_docs = []
 
-    # QUERY WORDS
+    # Query words
     query_words = query.lower().split()
 
-    # HYBRID SEARCH
+    # Hybrid search
     for doc in docs:
 
         try:
 
-            # -----------------------------
-            # VECTOR SCORE
-            # -----------------------------
+            # vector search
             doc_embedding = json_to_embedding(
                 doc.embedding
             )
@@ -54,9 +50,7 @@ def retrieve_relevant_docs(
                 doc_embedding
             )
 
-            # -----------------------------
-            # KEYWORD SCORE
-            # -----------------------------
+          # Keyword score
             content_lower = doc.content.lower()
 
             keyword_matches = sum(
@@ -70,9 +64,7 @@ def retrieve_relevant_docs(
                 max(len(query_words), 1)
             )
 
-            # -----------------------------
-            # FINAL HYBRID SCORE
-            # -----------------------------
+           # Final hybrid score
             final_score = (
                 (0.7 * vector_score) +
                 (0.3 * keyword_score)
@@ -89,17 +81,13 @@ def retrieve_relevant_docs(
                 e
             )
 
-    # -----------------------------
-    # SORT DESCENDING
-    # -----------------------------
+    # Sorts descending
     scored_docs.sort(
         key=lambda x: x[1],
         reverse=True
     )
 
-    # -----------------------------
-    # TOP RESULTS
-    # -----------------------------
+  # Gives TOP results
     top_results = []
 
     for doc, score in scored_docs[:top_k]:
@@ -113,9 +101,7 @@ def retrieve_relevant_docs(
     return top_results
 
 
-# -----------------------------------
-# BUILD CONTEXT
-# -----------------------------------
+# Build context
 def build_context(top_docs):
 
     context = ""
@@ -132,13 +118,13 @@ def build_context(top_docs):
 
         content = doc.content.strip()
 
-        # AVOID DUPLICATE CHUNKS
+        # Avoid duplicate chunks
         if content in seen_content:
             continue
 
         seen_content.add(content)
 
-        # PREVIEW WINDOW
+        # Preview window
         preview = content[:1200]
 
         context += f"""
@@ -147,7 +133,7 @@ DOCUMENT {i + 1}:
 
 """
 
-        # AVOID DUPLICATE FILENAMES
+        # Aviod duplicate file names
         if doc.filename not in seen_files:
 
             sources.append({
@@ -167,9 +153,7 @@ DOCUMENT {i + 1}:
     return context.strip(), sources, confidence
 
 
-# -----------------------------------
-# GENERATE CHAT RESPONSE
-# -----------------------------------
+# Generate chat response
 def generate_chat_response(
     query: str,
     context: str,

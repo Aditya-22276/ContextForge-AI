@@ -63,7 +63,7 @@ const [documents, setDocuments] = useState([]);
 
 }, [theme]);
 
-  // HANDLE GOOGLE OAUTH REDIRECT
+  // HANDLE google OAuth redirect
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const oauthToken = params.get("token");
@@ -78,9 +78,9 @@ const [documents, setDocuments] = useState([]);
         fetchSessions();
       }, 100);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); 
 
-  // CHECK TOKEN
+  // Checks token
   useEffect(() => {
 
     const token = localStorage.getItem("token");
@@ -97,7 +97,7 @@ const [documents, setDocuments] = useState([]);
 
     }, 100);
 
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   // FETCH DOCUMENTS
   const fetchDocuments = async () => {
@@ -117,7 +117,7 @@ const [documents, setDocuments] = useState([]);
         }
       );
 
-      // FIX 401
+      
       if (res.status === 401) {
 
         localStorage.removeItem("token");
@@ -166,7 +166,7 @@ const [documents, setDocuments] = useState([]);
         }
       );
 
-      // FIX 401
+      
       if (res.status === 401) {
 
         localStorage.removeItem("token");

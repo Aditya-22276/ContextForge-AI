@@ -9,7 +9,7 @@ import os
 router = APIRouter()
 
 
-# ── Request Schemas ──────────────────────────────────────────────────────────
+# Request Schemas 
 
 class RegisterRequest(BaseModel):
     email: str
@@ -25,7 +25,7 @@ class GoogleLoginRequest(BaseModel):
     token: str          # This is the id_token (JWT) from @react-oauth/google
 
 
-# ── Register ─────────────────────────────────────────────────────────────────
+# Register block
 
 @router.post("/register")
 def register(request: RegisterRequest, db: Session = Depends(get_db)):
@@ -43,7 +43,7 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
     return {"message": "User registered successfully"}
 
 
-# ── Login ─────────────────────────────────────────────────────────────────────
+# Login block
 
 @router.post("/login")
 def login(request: LoginRequest, db: Session = Depends(get_db)):
@@ -57,13 +57,8 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
     return {"access_token": token, "token_type": "bearer"}
 
 
-# ── Google Login ──────────────────────────────────────────────────────────────
-#
-#  @react-oauth/google's <GoogleLogin> onSuccess callback delivers:
-#    credentialResponse.credential  →  a signed JWT id_token from Google
-#
-#  We verify that JWT server-side with google-auth-library (google-auth pip pkg).
-#  Do NOT use google-genai for this — it does not expose id_token verification.
+# Google Login
+
 
 @router.post("/google-login")
 def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db)):
@@ -75,8 +70,8 @@ def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db)):
             detail="Server misconfiguration: GOOGLE_CLIENT_ID not set"
         )
 
-    # ── Verify the id_token with Google's public keys ─────────────────────────
-    #    google-auth handles clock skew, expiry, and audience checks.
+    #  Verifies the id_token with Google's public keys 
+    #  google-auth handles clock skew, expiry, and audience checks.
     try:
         from google.oauth2 import id_token
         from google.auth.transport import requests as google_requests
@@ -99,7 +94,7 @@ def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db)):
             detail=f"Google token verification failed: {str(e)}"
         )
 
-    # ── Extract verified claims ───────────────────────────────────────────────
+    # Extracts verified claims
     email = idinfo.get("email")
     if not email:
         raise HTTPException(status_code=400, detail="Google account has no email")
@@ -107,7 +102,7 @@ def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db)):
     if not idinfo.get("email_verified", False):
         raise HTTPException(status_code=400, detail="Google email is not verified")
 
-    # ── Find or create user ───────────────────────────────────────────────────
+    #  Finds or create user 
     user = db.query(User).filter(User.email == email).first()
     if not user:
         user = User(
@@ -118,6 +113,6 @@ def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(user)
 
-    # ── Issue your own JWT (same structure as normal login) ───────────────────
+    #  Issues your own JWT (same structure as normal login)
     access_token = create_access_token({"user_id": user.id})
     return {"access_token": access_token, "token_type": "bearer"}

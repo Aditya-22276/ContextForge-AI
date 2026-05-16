@@ -15,67 +15,50 @@ class ChatHistory(Base):
 
     __tablename__ = "chat_history"
 
-    # -----------------------------
-    # PRIMARY KEY
-    # -----------------------------
+   #primary key
     id = Column(
         Integer,
         primary_key=True,
         index=True
     )
 
-    # -----------------------------
-    # USER ID
-    # -----------------------------
+    #User ID
     user_id = Column(
         Integer,
         nullable=False
     )
 
-    # -----------------------------
-    # SESSION ID
-    # Links chats to a session
-    # -----------------------------
+    # SESSION ID links chat to id
     session_id = Column(
         Integer,
         nullable=True
     )
 
-    # -----------------------------
-    # CHAT TITLE
-    # -----------------------------
+    #Chat Title
     title = Column(
         Text,
         nullable=True
     )
 
-    # -----------------------------
-    # USER QUESTION
-    # -----------------------------
+   #user questions
     question = Column(
         Text,
         nullable=False
     )
 
-    # -----------------------------
-    # AI ANSWER
-    # -----------------------------
+   #AI answers
     answer = Column(
         Text,
         nullable=False
     )
 
-    # -----------------------------
-    # SOURCES / CITATIONS
-    # -----------------------------
+   #sources and citations
     sources = Column(
         JSON,
         nullable=True
     )
 
-    # -----------------------------
-    # CREATED TIME
-    # -----------------------------
+   # at what time created
     created_at = Column(
         TIMESTAMP,
         server_default=func.now()

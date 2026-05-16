@@ -9,13 +9,12 @@ from models.document import Document
 from services.dependencies import get_current_user
 
 
-# ✅ ROUTER
+# ROUTER
 router = APIRouter()
 
 
-# -----------------------------------
-# GET USER DOCUMENTS
-# -----------------------------------
+# Gets user documents
+
 @router.get("/documents")
 def get_documents(
     db: Session = Depends(get_db),
@@ -42,9 +41,8 @@ def get_documents(
     return list(unique_files.values())
 
 
-# -----------------------------------
-# DELETE DOCUMENT
-# -----------------------------------
+# Delete documents
+
 @router.delete("/documents/{filename}")
 def delete_document(
     filename: str,

@@ -29,27 +29,27 @@ def search_documents(request: SearchRequest, db: Session = Depends(get_db)):
     if not request.query.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty")
 
-    # Generate embedding for the query
+    # Convert query to embedding
     query_embedding = generate_embedding(request.query)
     query_vector = np.array(query_embedding)
 
-    # Fetch all documents that have embeddings
+    # Get documents
     documents = db.query(Document).filter(Document.embedding != None).all()
 
     if not documents:
         raise HTTPException(status_code=404, detail="No documents found")
 
-    # Calculate similarity for each document
+    # Compare similarity
     scored = []
     for doc in documents:
         doc_vector = json_to_embedding(doc.embedding)
         score = cosine_similarity(query_vector, doc_vector)
         scored.append((doc, score))
 
-    # Sort by similarity score descending
+    # Sort results
     scored.sort(key=lambda x: x[1], reverse=True)
 
-    # Return top_k results
+    # Return top results
     top_results = scored[:request.top_k]
 
     return SearchResponse(

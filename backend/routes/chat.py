@@ -23,9 +23,8 @@ from models.chat_session import ChatSession
 router = APIRouter()
 
 
-# -----------------------------
-# REQUEST MODEL
-# -----------------------------
+# Request model
+
 class ChatRequest(BaseModel):
 
     query: str
@@ -37,9 +36,8 @@ class ChatRequest(BaseModel):
     session_id: int | None = None
 
 
-# -----------------------------
-# CHAT ENDPOINT
-# -----------------------------
+# Chat end point
+
 @router.post("/chat")
 def chat(
     request: ChatRequest,
@@ -49,7 +47,7 @@ def chat(
 
     print("CHAT USER ID:", user_id)
 
-    # AUTH CHECK
+    # checks AUTH
     if user_id is None:
 
         raise HTTPException(
@@ -57,7 +55,8 @@ def chat(
             detail="User not authenticated"
         )
 
-    # EMPTY QUERY CHECK
+    # Empty query check
+
     if not request.query.strip():
 
         raise HTTPException(
@@ -65,9 +64,8 @@ def chat(
             detail="Query cannot be empty"
         )
 
-    # -----------------------------
-    # CREATE SESSION
-    # -----------------------------
+    # Chat session
+
     session_id = request.session_id
 
     if session_id is None:
@@ -89,9 +87,8 @@ def chat(
 
         session_id = new_session.id
 
-    # -----------------------------
-    # LOAD PREVIOUS CHAT MEMORY
-    # -----------------------------
+   #Loads previous chat memory
+
     history = []
 
     previous_chats = (
@@ -123,9 +120,8 @@ def chat(
             "content": old_chat.answer
         })
 
-    # -----------------------------
-    # SMART SEARCH QUERY
-    # -----------------------------
+   # Smart search Query
+
     search_query = request.query
 
     if history:
@@ -146,9 +142,8 @@ def chat(
             + request.query
         )
 
-    # -----------------------------
-    # RETRIEVE DOCUMENTS
-    # -----------------------------
+    # Retrives documents
+
     top_docs = retrieve_relevant_docs(
         search_query,
         db,
@@ -156,9 +151,8 @@ def chat(
         request.top_k
     )
 
-    # -----------------------------
-    # NO DOCUMENTS
-    # -----------------------------
+    # If no documents found
+
     if not top_docs:
 
         return {
@@ -167,16 +161,14 @@ def chat(
             "sources": []
         }
 
-    # -----------------------------
-    # BUILD CONTEXT
-    # -----------------------------
+   # Builds context
+
     context, sources, confidence = build_context(
         top_docs
     )
 
-    # -----------------------------
-    # MEMORY TEXT
-    # -----------------------------
+   # Memory text
+
     memory_text = ""
 
     for msg in history:
@@ -186,9 +178,8 @@ def chat(
             f"{msg['content']}\n"
         )
 
-    # -----------------------------
-    # FINAL PROMPT
-    # -----------------------------
+   # FINAL PROMPT
+
     final_prompt = f"""
 You are ContextForge AI.
 
@@ -212,16 +203,14 @@ RULES:
 - Avoid hallucinations
 """
 
-    # -----------------------------
-    # GENERATE ANSWER
-    # -----------------------------
+   #General answers
+
     answer = generate_response(
         final_prompt
     )
 
-    # -----------------------------
-    # SAVE CHAT
-    # -----------------------------
+   #Saves chat
+
     chat_entry = ChatHistory(
 
         user_id=user_id,
@@ -244,9 +233,8 @@ RULES:
 
     db.commit()
 
-    # -----------------------------
-    # RETURN RESPONSE
-    # -----------------------------
+    # Returns response
+
     return {
 
         "session_id": session_id,
@@ -258,9 +246,8 @@ RULES:
     }
 
 
-# -----------------------------
-# GET CHAT HISTORY
-# -----------------------------
+# Gets chat history
+
 @router.get("/history")
 def get_chat_history(
 
@@ -320,9 +307,8 @@ def get_chat_history(
     ]
 
 
-# -----------------------------
-# GET SESSION CHAT HISTORY
-# -----------------------------
+# Gets session chat history
+
 @router.get("/history/{session_id}")
 def get_session_chat_history(
 

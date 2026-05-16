@@ -11,9 +11,7 @@ function Login() {
   const navigate = useNavigate();
 
 
-  // -----------------------------
-  // NORMAL LOGIN
-  // -----------------------------
+//Normal Login
   const handleLogin = async () => {
 
     try {
@@ -64,9 +62,9 @@ function Login() {
   };
 
 
-  // -----------------------------
+  
   // GOOGLE LOGIN
-  // -----------------------------
+  
   const handleGoogleLogin = async (
     credentialResponse
   ) => {

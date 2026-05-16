@@ -4,9 +4,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-# -----------------------------
-# LOAD ENV
-# -----------------------------
+# Loads ENV 
 
 load_dotenv()
 
@@ -18,17 +16,13 @@ if not GEMINI_API_KEY:
         "GEMINI_API_KEY not found in .env file"
     )
 
-# -----------------------------
-# GEMINI CLIENT
-# -----------------------------
+# GEMINI client
 
 client = genai.Client(
     api_key=GEMINI_API_KEY
 )
 
-# -----------------------------
-# SAFE RESPONSE EXTRACTOR
-# -----------------------------
+# Safe response extractor
 
 def extract_response_text(response):
 
@@ -49,9 +43,7 @@ def extract_response_text(response):
 
         return "Error parsing AI response."
 
-# -----------------------------
-# SUMMARIZER
-# -----------------------------
+# Summarizer
 
 def summarize_text(text: str) -> str:
 
@@ -100,9 +92,7 @@ SUMMARY:
 
         return "Error generating summary."
 
-# -----------------------------
-# NORMAL CHAT RESPONSE
-# -----------------------------
+# Normal chat response
 
 def generate_response(prompt: str) -> str:
 
@@ -151,9 +141,7 @@ ANSWER:
 
         return "Error generating AI response."
 
-# -----------------------------
-# CHAT TITLE GENERATOR
-# -----------------------------
+# Chat title generation
 
 def generate_chat_title(query: str) -> str:
 

@@ -26,9 +26,8 @@ import fitz
 router = APIRouter()
 
 
-# -----------------------------------
-# TEXT CHUNKER
-# -----------------------------------
+# Text chunker
+
 def chunk_text(
     text,
     chunk_size=500
@@ -51,9 +50,8 @@ def chunk_text(
     return chunks
 
 
-# -----------------------------------
-# TEXT UPLOAD
-# -----------------------------------
+# Text upload
+
 @router.post("/upload")
 async def upload_text(
 
@@ -66,7 +64,7 @@ async def upload_text(
     )
 ):
 
-    # EMPTY CHECK
+    # Checks empty
     if not content.strip():
 
         raise HTTPException(
@@ -74,12 +72,12 @@ async def upload_text(
             detail="Content cannot be empty"
         )
 
-    # SPLIT INTO CHUNKS
+    # Splits into chunks
     chunks = chunk_text(content)
 
     stored_docs = []
 
-    # STORE CHUNKS
+    # Store chunks
     for chunk in chunks:
 
         if not chunk.strip():
@@ -98,7 +96,7 @@ async def upload_text(
 
             embedding=embedding_json,
 
-            # ✅ NEW
+            
             filename="Pasted Text",
 
             user_id=user_id
@@ -116,9 +114,8 @@ async def upload_text(
     }
 
 
-# -----------------------------------
-# PDF / TXT FILE UPLOAD
-# -----------------------------------
+# PDF / TEXT file upload
+
 @router.post("/upload-file")
 async def upload_file(
 
@@ -133,14 +130,14 @@ async def upload_file(
 
     extracted_text = ""
 
-    # TXT FILE
+    # txt file
     if file.filename.endswith(".txt"):
 
         extracted_text = (
             await file.read()
         ).decode("utf-8")
 
-    # PDF FILE
+    # PDF File
     elif file.filename.endswith(".pdf"):
 
         pdf_bytes = await file.read()
@@ -166,7 +163,7 @@ async def upload_file(
             )
         )
 
-    # EMPTY CHECK
+    # Empty check
     if not extracted_text.strip():
 
         raise HTTPException(
@@ -174,12 +171,12 @@ async def upload_file(
             detail="No text found in file"
         )
 
-    # SPLIT INTO CHUNKS
+    # Split into chunks
     chunks = chunk_text(extracted_text)
 
     stored_docs = []
 
-    # STORE CHUNKS
+    # Store chunks
     for chunk in chunks:
 
         if not chunk.strip():
@@ -199,7 +196,7 @@ async def upload_file(
 
             embedding=embedding_json,
 
-            # ✅ STORE FILENAME
+            #  Stores file name
             filename=file.filename,
 
             user_id=user_id

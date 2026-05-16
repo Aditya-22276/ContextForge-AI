@@ -5,9 +5,7 @@ import numpy as np
 from dotenv import load_dotenv
 from google import genai
 
-# -------------------------
-# LOAD ENV VARIABLES
-# -------------------------
+# Loads env variables
 
 load_dotenv()
 
@@ -19,17 +17,13 @@ if not GEMINI_API_KEY:
         "GEMINI_API_KEY not found in .env file"
     )
 
-# -------------------------
-# GEMINI CLIENT
-# -------------------------
+# GEMINI client
 
 client = genai.Client(
     api_key=GEMINI_API_KEY
 )
 
-# -------------------------
-# GENERATE EMBEDDING
-# -------------------------
+# Generate embeddings
 
 def generate_embedding(text: str) -> list:
 
@@ -53,9 +47,7 @@ def generate_embedding(text: str) -> list:
 
         return []
 
-# -------------------------
-# JSON CONVERSION
-# -------------------------
+# JSON conversion
 
 def embedding_to_json(
     embedding: list
@@ -74,9 +66,7 @@ def json_to_embedding(
         json.loads(json_str)
     )
 
-# -------------------------
-# COSINE SIMILARITY
-# -------------------------
+# COSINE similarity
 
 def cosine_similarity(
     vec1: np.ndarray,

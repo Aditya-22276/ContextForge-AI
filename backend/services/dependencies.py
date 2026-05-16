@@ -1,6 +1,6 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import jwt
+from jose import jwt, JWTError
 import os
 from dotenv import load_dotenv
 
@@ -13,16 +13,26 @@ security = HTTPBearer()
 
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    token = credentials.credentials
-
     try:
+        # Extract token
+        token = credentials.credentials
+
+        # Decode JWT
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+        # Extract user_id
         user_id = payload.get("user_id")
 
         if user_id is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token: user_id missing"
+            )
 
         return user_id
 
-    except Exception:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token"
+        )
